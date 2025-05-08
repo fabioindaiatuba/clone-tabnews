@@ -38,8 +38,8 @@ function getSSLValues() {
     process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "test"
   );
 }
-
-export default {
+const database = {
   query,
   getNewClient,
 };
+export default database;
