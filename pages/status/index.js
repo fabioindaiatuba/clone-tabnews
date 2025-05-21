@@ -11,7 +11,6 @@ export default function StatusPage() {
     <>
       <h1>Status</h1>
       <UpdatedAt />
-      <h1>Database</h1>
       <DatabaseStatus />
     </>
   );
@@ -23,7 +22,6 @@ function UpdatedAt() {
   });
   let updatedAtText = "Carregando...";
   if (!isLoading && data) {
-    console.log(data);
     updatedAtText = new Date(data.updated_at).toLocaleString("pt-BR");
   }
 
@@ -34,16 +32,27 @@ function DatabaseStatus() {
   const { isLoading, data } = useSWR("/api/v1/status", fetchAPI, {
     refreshInterval: 2000,
   });
-  let databaseStatus = "Carregando...";
+
+  let databaseStatusInformation = "Carregando...";
+
   if (!isLoading && data) {
-    console.log(data);
-    databaseStatus = data.dependencies.database;
+    databaseStatusInformation = (
+      <>
+        <div>Versão: {data.dependencies.database.version}</div>
+        <div>
+          Conexões abertas: {data.dependencies.database.opened_connections}
+        </div>
+        <div>
+          Conexões máximas: {data.dependencies.database.max_connections}
+        </div>
+      </>
+    );
   }
+
   return (
     <>
-      <div>Versão: {databaseStatus.version}</div>
-      <div>Conexões abertas: {databaseStatus.opened_connections}</div>
-      <div>Conexões máximas: {databaseStatus.max_connections}</div>
+      <h2>Database</h2>
+      <div>{databaseStatusInformation}</div>
     </>
   );
 }
