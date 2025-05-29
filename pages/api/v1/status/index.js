@@ -35,6 +35,7 @@ async function status(request, response) {
     updated_at: updatedAt,
     dependencies: {
       database: {
+        name: process.env.POSTGRES_DB,
         version: databaseVersionValue,
         max_connections: databaseMaxConnectionValue,
         opened_connections: databaseOpenedConnectionValue,
