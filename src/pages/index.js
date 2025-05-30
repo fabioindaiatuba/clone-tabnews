@@ -1,8 +1,13 @@
+import Link from "next/link";
+
 function Home() {
   return (
-    <h1>
-      🚀 Esse projeto está apenas começando, continue acompanhando...🚀🚀🚀
-    </h1>
+    <>
+      <h1>Novo projeto teste.</h1>
+      <h3>
+        <Link href="/api/v1/status">{" => STATUS <="}</Link>
+      </h3>
+    </>
   );
 }
 
