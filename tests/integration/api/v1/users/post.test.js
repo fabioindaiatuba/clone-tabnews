@@ -1,7 +1,7 @@
-import { version as uuidVersion } from "uuid";
-import orchestrator from "tests/orchestrator.js";
-import user from "models/user.js";
 import password from "models/password.js";
+import user from "models/user.js";
+import orchestrator from "tests/orchestrator.js";
+import { version as uuidVersion } from "uuid";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -45,12 +45,11 @@ describe("POST /api/v1/users", () => {
         "senha123",
         userInDatabase.password,
       );
-      expect(correctPasswordMatch).toBe(true);
-
       const incorrectPasswordMatch = await password.compare(
         "senhaerrada",
         userInDatabase.password,
       );
+      expect(correctPasswordMatch).toBe(true);
       expect(incorrectPasswordMatch).toBe(false);
     });
 
