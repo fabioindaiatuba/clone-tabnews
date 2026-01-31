@@ -1,5 +1,6 @@
 const { default: activation } = require("models/activation");
 const { default: orchestrator } = require("../../orchestrator");
+const { default: webserver } = require("infra/webserver");
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -43,15 +44,23 @@ describe("Use case: Registration Glow (all successful)", () => {
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
 
-    const activationToken = await activation.findOneByUserId(
-      createUserResponseBody.id,
-    );
-
     expect(lastEmail.sender).toBe("<contato@curso.dev>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
     expect(lastEmail.subject).toBe("Ative seu cadastro no TabNewsClone!");
     expect(lastEmail.text).toContain("RegistrationFlow");
-    expect(lastEmail.text).toContain(activationToken.id);
+
+    const activationTokenId = orchestrator.extractUUID(lastEmail.text);
+
+    expect(lastEmail.text).toContain(
+      `${webserver.origin}/cadastro/ativar/${activationTokenId}`,
+    );
+
+    const activationTokenObject =
+      await activation.findOneValidById(activationTokenId);
+
+    console.log(activationTokenObject);
+    expect(activationTokenObject.user_id).toBe(createUserResponseBody.id);
+    expect(activationTokenObject.used_at).toBe(null);
   });
 
   test("Active account", async () => {});
