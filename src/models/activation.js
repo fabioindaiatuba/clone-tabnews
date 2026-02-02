@@ -2,6 +2,7 @@ import database from "infra/database";
 import email from "infra/email";
 import { NotFoundError } from "infra/errors";
 import webserver from "infra/webserver";
+import user from "./user";
 
 const EXPIRATION_IN_MILLISECONDS = 15 * 60 * 1000; // 15 minutes
 
@@ -59,6 +60,31 @@ async function create(userId) {
   }
 }
 
+async function markTokenAsUsed(activationToken) {
+  const userActivationToken = await runUpdateQuery(activationToken.id);
+  await user.setFeatures(activationToken.user_id, ["create:session"]);
+  return userActivationToken;
+
+  async function runUpdateQuery(activationTokenId) {
+    const results = await database.query({
+      text: `
+      UPDATE
+        user_activation_tokens 
+      SET
+        used_at = timezone('utc', now()),
+        updated_at = timezone('utc', now())
+      WHERE 
+        id = $1
+      RETURNING
+        *
+      ;`,
+      values: [activationTokenId],
+    });
+
+    return results.rows[0];
+  }
+}
+
 async function sendEmailToUser(user, activationToken) {
   await email.send({
     from: "Contato - TabNewsClone <contato@curso.dev>",
@@ -78,6 +104,7 @@ Equipe TabNewsClone
 const activation = {
   findOneValidById,
   create,
+  markTokenAsUsed,
   sendEmailToUser,
 };
 
