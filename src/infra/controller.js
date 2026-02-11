@@ -2,6 +2,7 @@ import * as cookie from "cookie";
 import session from "models/session";
 import user from "models/user";
 
+import authorization from "models/authorization";
 import {
   ForbiddenError,
   InternalServerError,
@@ -96,7 +97,7 @@ function canRequest(feature) {
   return function canRequestMiddleware(request, response, next) {
     const userTryingRequest = request.context?.user;
 
-    if (userTryingRequest.features.includes(feature)) {
+    if (authorization.can(userTryingRequest, feature)) {
       return next();
     }
 
